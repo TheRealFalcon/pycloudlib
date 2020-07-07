@@ -287,3 +287,13 @@ def _safe_int(possible_int):
         return int(possible_int)
     except (ValueError, TypeError):
         return None
+
+
+def ubuntu_name_to_number(name):
+    """Convert to version number based on the version name."""
+    mapping = {
+        'focal': '20.04',
+        'bionic': '18.04',
+        'xenial': '16.04',
+    }
+    return mapping[name]
