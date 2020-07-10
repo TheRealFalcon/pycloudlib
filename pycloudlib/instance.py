@@ -1,6 +1,7 @@
 # This file is part of pycloudlib. See LICENSE file for license information.
 """Base class for all instances to provide consistent set of functions."""
 
+from abc import ABC, abstractmethod, abstractproperty
 import logging
 import time
 
@@ -16,7 +17,7 @@ from pycloudlib.result import Result
 from pycloudlib.util import shell_quote, shell_pack, subp
 
 
-class BaseInstance:
+class BaseInstance(ABC):
     """Base instance object."""
 
     _type = 'base'
@@ -34,15 +35,67 @@ class BaseInstance:
         self.port = '22'
         self.username = 'ubuntu'
 
-    @property
-    def ip(self):  # pylint: disable=C0103
+    @abstractproperty
+    def ip(self):
         """Return IP address of instance.
 
         Returns:
             IP address assigned to instance.
 
         """
-        return ''
+        raise NotImplementedError
+
+    @abstractmethod
+    def console_log(self):
+        """Return the instance console log."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete(self, wait=True):
+        """Delete the instance.
+
+        Args:
+            wait: wait for instance to be deleted
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def restart(self, wait=True):
+        """Restart an instance."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def shutdown(self, wait=True):
+        """Shutdown the instance.
+
+        Args:
+            wait: wait for the instance to shutdown
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def start(self, wait=True):
+        """Start the instance.
+
+        Args:
+            wait: wait for the instance to start.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def wait(self):
+        """Wait for instance to be up and cloud-init to be complete."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def wait_for_delete(self):
+        """Wait for instance to be deleted."""
+        raise NotImplementedError
+
+    @abstractmethod
+    def wait_for_stop(self):
+        """Wait for instance stop."""
+        raise NotImplementedError
 
     def __del__(self):
         """Cleanup of instance."""
@@ -66,18 +119,6 @@ class BaseInstance:
         """
         self.execute('sudo cloud-init clean --logs')
         self.execute('sudo rm -rf /var/log/syslog')
-
-    def console_log(self):
-        """Return the instance console log."""
-        raise NotImplementedError
-
-    def delete(self, wait=True):
-        """Delete the instance.
-
-        Args:
-            wait: wait for instance to be deleted
-        """
-        raise NotImplementedError
 
     def execute(self, command, stdin=None, description=None):
         """Execute command in instance, recording output, error and exit code.
@@ -162,10 +203,6 @@ class BaseInstance:
         sftp = self._sftp_connect()
         sftp.put(local_path, remote_path)
 
-    def restart(self, wait=True):
-        """Restart an instance."""
-        raise NotImplementedError
-
     def run_script(self, script, description=None):
         """Run script in target and return stdout.
 
@@ -190,22 +227,6 @@ class BaseInstance:
             ['sh', '-c', shblob, 'runscript', self._tmpfile()],
             stdin=script, description=description)
 
-    def shutdown(self, wait=True):
-        """Shutdown the instance.
-
-        Args:
-            wait: wait for the instance to shutdown
-        """
-        raise NotImplementedError
-
-    def start(self, wait=True):
-        """Start the instance.
-
-        Args:
-            wait: wait for the instance to start.
-        """
-        raise NotImplementedError
-
     def update(self):
         """Run apt-get update/upgrade on instance.
 
@@ -218,18 +239,6 @@ class BaseInstance:
             'DEBIAN_FRONTEND=noninteractive',
             'sudo', 'apt-get', '--yes', 'upgrade'
         ])
-
-    def wait(self):
-        """Wait for instance to be up and cloud-init to be complete."""
-        raise NotImplementedError
-
-    def wait_for_delete(self):
-        """Wait for instance to be deleted."""
-        raise NotImplementedError
-
-    def wait_for_stop(self):
-        """Wait for instance stop."""
-        raise NotImplementedError
 
     def _ssh(self, command, stdin=None):
         """Run a command via SSH.

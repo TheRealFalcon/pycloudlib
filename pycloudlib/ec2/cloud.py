@@ -153,15 +153,15 @@ class EC2(BaseCloud):
         return EC2Instance(self.client, self.key_pair, instance)
 
     def launch(self, image_id, instance_type='t2.micro', user_data=None,
-               vpc=None, wait=True, **kwargs):
+               wait=True, vpc=None, **kwargs):
         """Launch instance on EC2.
 
         Args:
             image_id: string, AMI ID to use default: latest Ubuntu LTS
             instance_type: string, instance type to launch
             user_data: string, user-data to pass to instance
-            vpc: optional vpc object to create instance under
             wait: boolean, wait for instance to come up
+            vpc: optional vpc object to create instance under
             kwargs: other named arguments to add to instance JSON
 
         Returns:
@@ -215,7 +215,7 @@ class EC2(BaseCloud):
             keypair_names.append(keypair["KeyName"])
         return keypair_names
 
-    def snapshot(self, instance, clean=True):
+    def snapshot(self, instance, clean=True, wait=True):
         """Snapshot an instance and generate an image from it.
 
         Args:
@@ -242,9 +242,9 @@ class EC2(BaseCloud):
         image_ami_edited = response['ImageId']
         image = self.resource.Image(image_ami_edited)
 
-        self._wait_for_snapshot(image)
-
-        instance.start(wait=True)
+        if wait:
+            self._wait_for_snapshot(image)
+            instance.start(wait=True)
 
         return image.id
 

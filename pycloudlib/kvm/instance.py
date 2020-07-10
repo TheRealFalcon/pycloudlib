@@ -23,6 +23,11 @@ class KVMInstance(BaseInstance):
         self.name = name
 
     @property
+    def ip(self):
+        """Return IP address of instance."""
+        raise NotImplementedError
+
+    @property
     def state(self):
         """Return current status of instance.
 
@@ -132,9 +137,11 @@ class KVMInstance(BaseInstance):
 
         Not used for KVM.
         """
+        raise NotImplementedError
 
     def wait_for_stop(self):
         """Wait for stop.
 
         Not used for KVM.
         """
+        raise NotImplementedError
