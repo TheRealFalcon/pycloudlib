@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Python packaging configuration."""
 import os
+from pathlib import Path
 
 from setuptools import find_packages, setup
 
@@ -13,6 +14,11 @@ def read_readme():
         readme_txt = readme.read()
 
     return readme_txt
+
+
+def read_version():
+    """Read and return text of VERSION"""
+    return Path(__file__).parent.joinpath("VERSION").read_text().strip()
 
 
 INSTALL_REQUIRES = [
@@ -51,7 +57,7 @@ EXTRAS_REQUIRE = {
 
 setup(
     name="pycloudlib",
-    version="18.8",
+    version=read_version(),
     description=(
         "Python library to launch, interact, and snapshot cloud instances"
     ),
