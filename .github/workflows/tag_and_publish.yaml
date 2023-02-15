@@ -7,7 +7,7 @@ on:
 concurrency: ${{ github.ref }}
 
 jobs:
-  tag-and-publish:
+  tag-release:
     runs-on: ubuntu-18.04
     steps:
       - name: Git checkout
@@ -17,6 +17,12 @@ jobs:
           version=$(cat VERSION)
           git tag $version
           git push origin $version
+  publish-release:
+    needs: tag-release
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v3
       - name: Set up Python 3.7
         uses: actions/setup-python@v3
         with:
